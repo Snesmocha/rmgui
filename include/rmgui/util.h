@@ -10,12 +10,19 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 
-#else   /*MSVC is the only crappy compiler that doesnt support this*/
+#elif defined(_MSC_VER)   /*MSVC is the only crappy compiler that doesnt support this*/
 
 #define UNLIKELY(x) (x)
 #define LIKELY(x) (x)
 
 #define FORCE_INLINE __forceinline
+
+#else
+
+#define UNLIKELY(x) (x)
+#define LIKELY(x) (x)
+
+#define FORCE_INLINE
 
 #endif
 
