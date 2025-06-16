@@ -1,6 +1,10 @@
 #ifndef DYNARRAY_H
 #define DYNARRAY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -132,6 +136,11 @@ FORCE_INLINE int shrink_to_fit_vector(vector *vec)
 }
 
 #define VEC_POP_BACK(vec) vec.size--
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 
