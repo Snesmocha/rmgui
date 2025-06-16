@@ -36,7 +36,7 @@ vector initialize_vec(size_t elem_size);
 void free_vector(vector *vec);
 
 /* remember to turn it into force_inline */
-static inline int vector_push_back(vector *vec, const void *element)
+FORCE_INLINE int vector_push_back(vector *vec, const void *element)
 {   
     if(UNLIKELY((vec->size + 1) * vec->elem_size > vec->capacity)) 
     {
@@ -59,7 +59,7 @@ static inline int vector_push_back(vector *vec, const void *element)
     return 0;
 }
 
-static inline size_t round_next_pow2(size_t number)
+FORCE_INLINE size_t round_next_pow2(size_t number)
 {
     if(number < 2)
     {
@@ -108,7 +108,7 @@ int resize_vector(vector *vec, size_t size);
 
 int insert_vector(vector *vec, const void *elements, size_t start, size_t end);
 
-static inline int shrink_to_fit_vector(vector *vec)
+FORCE_INLINE int shrink_to_fit_vector(vector *vec)
 {
     if(!vec)
         return -1;
