@@ -53,6 +53,10 @@ typedef struct
 string initialize_str(char* str, size_t length);	// to initialize as empty just type in NULL
 string initialize_wstr(wchar_t* str, size_t length);	// same as top
 
+int str_to_wstr(string* str);
+int wstr_to_str(string* str);
+
+
 FORCE_INLINE bool string_reserve(string* str, size_t reserve);
 FORCE_INLINE bool string_shrink_to_fit(string* str);
 
@@ -68,7 +72,6 @@ FORCE_INLINE string initialize_wstrn(wchar_t* str)
 }
 
 void free_string(string* str);
-
 
 int string_atoi(string str);
 long string_atol(string str);
@@ -110,10 +113,7 @@ LEAF FORCE_INLINE wchar_t* to_cwstr(string* str)
 	return str->str.w_string;
 }
 
-
 // utility 
-
-
 #ifdef __cplusplus
 }
 #endif
