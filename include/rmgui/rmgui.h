@@ -2,6 +2,11 @@
 #define RMGUI_H
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -342,24 +347,18 @@ struct gui_node
 	
 	gui_render render;
 	gui_set_layout pos;
-
-	uint32_t node_count;
-	uint32_t node_reserve;
 	
-	gui_node* nodes;
+	vector nodes;
 	gui_node* parent;
 };
 
 struct gui_core 
 {
 	uint32_t flags;
-	
-	uint32_t node_count;
-	uint32_t node_reserve;
 
 	void* data;
 	
-	gui_node** node_array; // an array of pointers, we are not copying just holding a reference basically
+	vector gui_node_array; // an array of pointers, we are not copying just holding a reference basically
 	
 	gui_node* head;
 	gui_input* input;
@@ -386,6 +385,10 @@ static inline gui_str gui_string(const char* string, size_t len)
 {
 	return (gui_str){len++, (char*)string};
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

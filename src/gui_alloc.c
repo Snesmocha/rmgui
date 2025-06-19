@@ -5,18 +5,16 @@ gui_node* guin_create_head( gui_parent_layout* layout, gui_children_layout* chil
 {
 
 	assert(layout != NULL && "LAYOUT MUST BE FIRST IMPLEMENTED");
-	
-  gui_node* node = (gui_node*)calloc(1, sizeof(gui_node));	// for safetys sake :skull:
-  if (!node) return NULL;
+	gui_node* node = (gui_node*)calloc(1, sizeof(gui_node));	// for safetys sake :skull:
+	if (!node) return NULL;
 
 
 	node->parent_lay = layout;
 	node->flags |= GUI_NODE_IS_ACTIVE | GUI_NODE_CAN_CHILD | GUI_NODE_IS_HEAD;
 	node->text = NULL;
-	node->node_count = 0;
-	node->node_reserve = 10;
+
 	node->parent = NULL;	// cannot parent a head obviously
-	node->nodes = (gui_node*)malloc(sizeof(gui_node) * node->node_reserve);
+	node->nodes = initialize_vec(sizeof(gui_node))
 
 	
 	if(layout) node->child_lay = child_layout;
@@ -38,18 +36,12 @@ gui_node* guic_init(gui_core* core, gui_node* node, uint32_t flags)
 {
 	
 	core->flags = flags;
-	core->node_count = 1;
-	core->node_reserve = 10;
-	
-	gui_node** node_array_tmp = (gui_node**)malloc(sizeof(gui_node) * core->node_reserve);
-	
-	assert(node_array_tmp != NULL && "ERROR, allocation failed");
 
-	node_array_tmp[0] = node;
+	core->gui_node_array = initialize_vec(sizeof(gui_node*));
+	vector_push_back(&core->gui_node_array, node);
 
-	core->node_array = node_array_tmp;
-	core->head 			= node;
-	core->input 		 = NULL;	/// TEMPORARY DO NOT FORGET LKDFJS:LDSKFJ:
+	core->head = node;
+	core->input = NULL;	/// TEMPORARY DO NOT FORGET LKDFJS:LDSKFJ:
 
 	printf("%p\n", node);
 	node->id = (gui_node_id){0, gui_string("head", 4), NULL, 0};
@@ -61,22 +53,9 @@ gui_node* guic_init(gui_core* core, gui_node* node, uint32_t flags)
 
 gui_node* guic_add_node(gui_core* core, gui_node* node, gui_str name)
 {
-	core->node_count++;
-	
-	
-	if(core->node_count >= core->node_reserve)
-	{
-		core->node_reserve += 10;
-		core->node_array = realloc((void*)core->node_array, sizeof(gui_node) * core->node_reserve);
-	}
-	//gui_node** node_array_tmp = (gui_node**)malloc(sizeof(gui_node) * core->node_reserve);
-	
-	//assert(node_array_tmp != NULL && "ERROR, allocation failed");
-
-	core->node_array[core->node_count-1] = node;
-
+	vector_push_back(&core->gui_node_array, node)
 	printf("%p\n", node);
-	//node->id = (gui_node_id){0, name, NULL, 0};	
+	node->id = (gui_node_id){0, name, NULL, 0};	
 	return node;
 }
 
@@ -93,10 +72,10 @@ gui_node* guin_create_node(gui_node* parent, gui_parent_layout* layout, gui_chil
 	
 	node->node_count = 0;
 	node->parent = parent;	// cannot parent a head obviously
-	node->nodes = (gui_node*)malloc(sizeof(gui_node));
+	node->nodes = initialize_vec(sizeof(gui_nodes));
 
-	parent->nodes[parent->node_count] = *node; 
-	parent->node_count++;
+	vector_push_back(&parent->nodes, *node); 
+
 	
 	if(parent->node_count <= parent->node_reserve) 
 	{

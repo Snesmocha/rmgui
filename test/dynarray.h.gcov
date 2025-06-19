@@ -1,0 +1,152 @@
+        -:    0:Source:../include/rmgui/dynarray.h
+        -:    0:Graph:.\a-dynarray.gcno
+        -:    0:Data:.\a-dynarray.gcda
+        -:    0:Runs:3
+        -:    1:#ifndef DYNARRAY_H
+        -:    2:#define DYNARRAY_H
+        -:    3:
+        -:    4:#ifdef __cplusplus
+        -:    5:extern "C" {
+        -:    6:#endif
+        -:    7:
+        -:    8:#include <stdint.h>
+        -:    9:#include <stdlib.h>
+        -:   10:#include <string.h>
+        -:   11:#include <limits.h>
+        -:   12:
+        -:   13:#include "util.h"
+        -:   14:
+        -:   15:#ifdef _MSC_VER
+        -:   16:#include <intrin.h>
+        -:   17:#endif
+        -:   18:
+        -:   19:#define VECTOR_INITIAL_CAPACITY 8
+        -:   20:
+        -:   21:typedef enum
+        -:   22:{
+        -:   23:    VECTOR_NO_ERROR,
+        -:   24:    VECTOR_ALLOCATION_ERROR,
+        -:   25:    VECTOR_FREED
+        -:   26:} vector_err_flag;
+        -:   27:
+        -:   28:typedef struct
+        -:   29:{
+        -:   30:    size_t capacity;    /* THIS IS IN BYTES, REMEMBER THIS YOU MONGREL */
+        -:   31:    size_t size;        /* NOT IN BYTES, THIS IS THE COUNT BASICALLY */
+        -:   32:    size_t elem_size;
+        -:   33:
+        -:   34:    vector_err_flag status;
+        -:   35:    void *data;
+        -:   36:} vector;
+        -:   37:
+        -:   38:vector initialize_vec(size_t elem_size);
+        -:   39:
+        -:   40:void free_vector(vector *vec);
+        -:   41:
+        -:   42:/* remember to turn it into force_inline */
+        -:   43:FORCE_INLINE int vector_push_back(vector *vec, const void *element)
+        -:   44:{   
+        -:   45:    if(UNLIKELY((vec->size + 1) * vec->elem_size > vec->capacity)) 
+        -:   46:    {
+        -:   47:        //FUCKING SHIT BRO, this prevents a bug, so we dont end up losing the old ptr when 
+        -:   48:        //reallocing, anyways this doubles the capacity
+        -:   49:        void *tmp = realloc(vec->data, vec->capacity * 2); 
+        -:   50:        if(!tmp)
+        -:   51:        {
+        -:   52:            vec->status = VECTOR_ALLOCATION_ERROR;
+        -:   53:            return -1;
+        -:   54:        }
+        -:   55:        vec->capacity *= 2;
+        -:   56:
+        -:   57:        vec->data = tmp;
+        -:   58:    }
+        -:   59:    
+        -:   60:    memcpy((char *)vec->data + vec->size * vec->elem_size, element, vec->elem_size);
+        -:   61:    vec->size++;
+        -:   62:
+        -:   63:    return 0;
+        -:   64:}
+        -:   65:
+        -:   66:FORCE_INLINE size_t round_next_pow2(size_t number)
+        -:   67:{
+    #####:   68:    if(number < 2)
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:   69:    {
+    #####:   70:        return 1;
+        -:   71:    }
+        -:   72:#if defined(__GNUC__) || defined(__CLANG__)
+        -:   73:
+        -:   74:#if SIZE_MAX > 0xFFFFFFFF
+        -:   75:    #define builtin_clz(x) __builtin_clzll(x)
+        -:   76:#else
+        -:   77:    #define builtin_clz(x) __builtin_clz(x)
+        -:   78:#endif
+        -:   79:
+        -:   80:    //count the leading bits to figure out the number of bits needed to shift 0x1 to get nearest pow
+    #####:   81:    return (size_t)0x1 << ((sizeof(size_t) * 8) - (size_t)builtin_clz(--number));
+        -:   82:#elif defined(__MSC_VER_)
+        -:   83:
+        -:   84:#if SIZE_MAX > 0xFFFFFFFF
+        -:   85:    #define bitscan_reverse(x, y) _BitScanReverse64(x, y)
+        -:   86:#else
+        -:   87:    #define bitscan_reverse(x, y) _BitScanReverse(x, y)
+        -:   88:#endif
+        -:   89:
+        -:   90:    unsigned long idx;
+        -:   91:    bitscan_reverse(&idx, --number);
+        -:   92:
+        -:   93:    return (size_t)0x1 << (idx + 1);
+        -:   94:
+        -:   95:#else
+        -:   96:    number--;
+        -:   97:    number |= number >> 1;
+        -:   98:    number |= number >> 2;
+        -:   99:    number |= number >> 4;
+        -:  100:    number |= number >> 8;
+        -:  101:    number |= number >> 16;
+        -:  102:#endif    
+        -:  103:#if SIZE_MAX > 0xFFFFFFFF
+        -:  104:    number |= number >> 32;
+        -:  105:#endif
+        -:  106:    number++;
+        -:  107:
+        -:  108:    return number;
+        -:  109:}
+        -:  110:
+        -:  111:int resize_vector(vector *vec, size_t size);
+        -:  112:
+        -:  113:int insert_vector(vector *vec, const void *elements, size_t start, size_t end);
+        -:  114:
+        -:  115:FORCE_INLINE int shrink_to_fit_vector(vector *vec)
+        -:  116:{
+        -:  117:    if(!vec)
+        -:  118:        return -1;
+        -:  119:
+        -:  120:    size_t bytesize = vec->size * vec->elem_size;
+        -:  121:    if(bytesize < vec->capacity)
+        -:  122:    {
+        -:  123:        void *tmp = realloc(vec->data, bytesize);
+        -:  124:        
+        -:  125:        if(!tmp)
+        -:  126:        {
+        -:  127:            vec->status = VECTOR_ALLOCATION_ERROR;
+        -:  128:            return -1;
+        -:  129:        }
+        -:  130:
+        -:  131:        vec->data = tmp;
+        -:  132:        vec->capacity = bytesize;
+        -:  133:    }
+        -:  134:
+        -:  135:    return 0;
+        -:  136:}
+        -:  137:
+        -:  138:#define VEC_POP_BACK(vec) vec.size--
+        -:  139:
+        -:  140:#ifdef __cplusplus
+        -:  141:}
+        -:  142:#endif
+        -:  143:
+        -:  144:
+        -:  145:#endif
+        -:  146:
