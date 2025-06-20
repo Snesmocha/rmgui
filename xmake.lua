@@ -5,8 +5,6 @@ set_toolchains("gcc")           -- Set the toolchain to gcc
 -- Create the target
 target("rmgui")
 
-	
-    
     set_languages("c99")            -- Set the language to C99
     set_kind("binary")              -- Set the target type to binary (executable)
     add_includedirs("include/")     -- Add include directories
@@ -14,10 +12,10 @@ target("rmgui")
     add_files("src/**.c")            -- Add source files
 	add_cflags("-static-libgcc")
 	
-	add_files("test/*.c")
-	
+
+
     -- Define the debug profile
-    	if is_mode("debug") then     -- Set the mode to debug
+    if is_mode("debug") then     -- Set the mode to debug
 		add_defines("DEBUG")            -- Define a macro for debug mode
 		set_symbols("debug")
 		set_optimize("none")
@@ -26,6 +24,26 @@ target("rmgui")
 		add_defines("NDEBUG")           -- Define a macro for release mode
 		set_optimize("fastest")
 	end
+target_end()
+
+for _, file in ipairs(os.files("test/*.c")) do
+		local name = path.basename(file)
+		target(name)
+			set_kind("binary")
+			set_languages("c99")
+			add_includedirs("include/")
+			add_cflags("-static-libgcc")
+			set_default(false)
+			add_files("src/**.c")
+			remove_files("src/main.c")
+			add_files("test/" .. name .. ".c")
+			add_tests("default")
+			--add_tests("args", {runargs = {"foo", "bar"}})
+			--add_tests("pass_output", {trim_output = true, runargs = "foo", pass_outputs = "hello foo"})
+			--add_tests("fail_output", {fail_outputs = {"hello2 .*", "hello xmake"}})
+	end
+    
+
 
 --    -- add debug and release modes
 --    add_rules("mode.debug", "mode.release")
@@ -51,9 +69,6 @@ target("rmgui")
 --
 --    -- add system link libraries
 --    add_syslinks("z", "pthread")
-
-	add_cxflags("-stdnolib", "-fno-strict-aliasing")
-	add_ldflags("-L/usr/local/lib", "-lpthread", {force = true})
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

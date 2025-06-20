@@ -14,7 +14,7 @@ gui_node* guin_create_head( gui_parent_layout* layout, gui_children_layout* chil
 	node->text = NULL;
 
 	node->parent = NULL;	// cannot parent a head obviously
-	node->nodes = initialize_vec(sizeof(gui_node))
+	node->nodes = initialize_vec(sizeof(gui_node));
 
 	
 	if(layout) node->child_lay = child_layout;
@@ -53,7 +53,7 @@ gui_node* guic_init(gui_core* core, gui_node* node, uint32_t flags)
 
 gui_node* guic_add_node(gui_core* core, gui_node* node, gui_str name)
 {
-	vector_push_back(&core->gui_node_array, node)
+	vector_push_back(&core->gui_node_array, node);
 	printf("%p\n", node);
 	node->id = (gui_node_id){0, name, NULL, 0};	
 	return node;
@@ -70,19 +70,12 @@ gui_node* guin_create_node(gui_node* parent, gui_parent_layout* layout, gui_chil
 	node->flags |= GUI_NODE_IS_ACTIVE | GUI_NODE_CAN_CHILD | GUI_NODE_IS_ACTIONABLE | GUI_NODE_IS_RENDERED;
 	node->text = NULL;
 	
-	node->node_count = 0;
 	node->parent = parent;	// cannot parent a head obviously
-	node->nodes = initialize_vec(sizeof(gui_nodes));
+	node->nodes = initialize_vec(sizeof(gui_node));
 
-	vector_push_back(&parent->nodes, *node); 
+	vector_push_back(&parent->nodes, node); 
 
-	
-	if(parent->node_count <= parent->node_reserve) 
-	{
-		realloc(parent->nodes, sizeof(gui_node) * parent->node_reserve);
-		parent->node_reserve += 10;
-	}
-	
+
 
 	if(layout) node->child_lay = child_layout;
 	if(scroll) node->scroll_data = scroll;
@@ -96,18 +89,18 @@ gui_node* guin_create_node(gui_node* parent, gui_parent_layout* layout, gui_chil
 	}
 	
 	return node;
-};
+}
+
 
 void gui_dest_core(gui_core* core)
 {
+/*
     if (!core) return;
 
 
 		for(int i = 0; i < core->node_count; i++)
 		{
-			/*
-				free as needed as well
-			*/
+
 			
 			free(core->node_array[i]);
 			core->node_array[i] = NULL;
@@ -115,5 +108,7 @@ void gui_dest_core(gui_core* core)
 
     core->node_array = NULL;
     core->head = NULL;
+*/
     
 }
+

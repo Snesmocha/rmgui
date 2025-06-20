@@ -1,5 +1,6 @@
 #include <rmgui/dynstr.h>
 #include <rmgui/util.h>
+#include <wchar.h>
 
 
 
@@ -10,17 +11,17 @@
 // at top are helper implementation functions
 
 
-string* initialize_str(char* str, size_t length)
+string initialize_str(char* str, size_t length)
 {
-	string* dynstring = {.size=0, .capacity=round_next_pow2(length), .status=STR_NO_ERROR, .type=STRT_CHAR};
+	string dynstr = {.size=0, .capacity=round_next_pow2(length), .status=STR_NO_ERROR, .type=STRT_CHAR};
 
-	dynstring.str.c_string = malloc(sizeof(char) * dynstring.capacity);
-	if(UNLIKELY(!dynstring.str.c_string)) dynstring.status = STR_ALLOCATION_ERROR;
+	dynstr.str.c_string = malloc(sizeof(char) * dynstr.capacity);
+	if(UNLIKELY(!dynstr.str.c_string)) dynstr.status = STR_ALLOCATION_ERROR;
 	
 	
-	if(!str) return dynstring;
+	if(!str) return dynstr;
 
-	char* dst = dynstring.str.c_string;
+	char* dst = dynstr.str.c_string;
 
 	// haha we love compiler optimizations
 	switch(length)
@@ -41,21 +42,21 @@ string* initialize_str(char* str, size_t length)
         memcpy(dst, str, length);
 	}
 	
-	return dynstring;
+	return dynstr;
 }
 
 
-string* initialize_wstr(wchar_t* str, size_t length);
+string initialize_wstr(wchar_t* str, size_t length)
 {
-	string dynstr = {.size=0, .status=STR_NO_ERROR, .type=STRT_WCHAR_T};
+	string dynstr = {.size=0, .status=STR_NO_ERROR, .type=STRT_WCHAR};
 
-	dynstr.c_string = malloc(sizeof(wchar_t) * length);
+	dynstr.str.w_string = malloc(sizeof(wchar_t) * length);
 	
-	if(UNLIKELY(!dynstr.data)) dynstr.status = STR_ALLOCATION_ERROR;
+	if(UNLIKELY(!dynstr.str.w_string)) dynstr.status = STR_ALLOCATION_ERROR;
 	
-	if(!str) return dynstring;
+	if(!str) return dynstr;
 
-	char* dst = dynstring.str.w_string;
+	wchar_t* dst = dynstr.str.w_string;
 
 
 	// haha we love compiler optimizations
@@ -78,21 +79,22 @@ string* initialize_wstr(wchar_t* str, size_t length);
 	}
 	
 	
-	return dynstring;
-	return dystr;
+	return dynstr;
 }
 
-int string_cpy(string* src, string* dest)
+int string_cpy(const string src, string* dest)
 {
-	
+
+    
+	return 0;
 }
 
 
 void free_string(string* str)
 {
 	
-	if(str->type == STRT_CHAR) free(str->c_string);
-	else free(str->wstring);
+	if(str->type == STRT_CHAR) free(str->str.c_string);
+	else free(str->str.w_string);
 	
 	str->status = STR_FREED;
 }
