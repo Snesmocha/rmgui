@@ -30,12 +30,8 @@ int main(void)
         ),
         gui_string("test", 4)
     );
-    
-    printf("%d\n", ((struct data_test*)test->data)->a);
-
-    
     gui_dest_core(&core);
-    
+
     
     return 0;
 }

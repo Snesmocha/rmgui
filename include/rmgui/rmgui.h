@@ -312,8 +312,7 @@ struct gui_node_id
 
 	gui_node_id* parent;
 
-	uint32_t children_count;
-	gui_node_id* children;
+	vector children;
 };
 
 

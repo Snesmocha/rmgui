@@ -90,6 +90,7 @@ FORCE_INLINE int shrink_to_fit_vector(vector *vec)
     return 0;
 }
 
+#define VEC_GET(vec, type, i) ((type*)((vec).data))[i]
 #define VEC_POP_BACK(vec) vec.size--
 
 #ifdef __cplusplus
