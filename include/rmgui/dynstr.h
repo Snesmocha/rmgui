@@ -24,13 +24,16 @@ typedef enum
 {
     STR_NO_ERROR,
     STR_ALLOCATION_ERROR,
+    STR_TYPE_ERROR,
     STR_FREED
 } str_err_flag;
 
 typedef enum
 {
-	STRT_CHAR,
-	STRT_WCHAR,
+	STRT_CHAR = 1,
+	STRT_WCHAR = 2,
+	STRT_CHAR_NOALLOC = 3,
+	STRT_WCHAR_NOALLOC = 4,
 } str_type_flag;
 
 typedef struct
@@ -53,12 +56,15 @@ typedef struct
 string initialize_str(char* str, size_t length);	// to initialize as empty just type in NULL
 string initialize_wstr(wchar_t* str, size_t length);	// same as top
 
+string initialize_str_noalloc(char* str, size_t length);
+
 int str_to_wstr(string* str);
 int wstr_to_str(string* str);
 
 
-FORCE_INLINE bool string_reserve(string* str, size_t reserve);
-FORCE_INLINE bool string_shrink_to_fit(string* str);
+int string_resize(string* str, size_t size);
+bool string_reserve(string* str, size_t reserve);
+bool string_shrink_to_fit(string* str);
 
 // force inlined code
 FORCE_INLINE string initialize_strn(char* str)

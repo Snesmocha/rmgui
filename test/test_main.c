@@ -1,3 +1,4 @@
+#include "rmgui/dynstr.h"
 #include <string.h>
 #include <rmgui/rmgui.h>
 
@@ -28,7 +29,7 @@ int main(void)
             NULL, 
             NULL
         ),
-        gui_string("test", 4)
+        initialize_str_noalloc("test", 4)
     );
     gui_dest_core(&core);
 

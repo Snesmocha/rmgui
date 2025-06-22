@@ -1,4 +1,5 @@
 #include "rmgui/dynarray.h"
+#include "rmgui/dynstr.h"
 #include <rmgui/rmgui.h>
 #include <string.h>
 
@@ -43,17 +44,20 @@ gui_node* guic_init(gui_core* core, gui_node* node, uint32_t flags)
 	core->head = node;
 	core->input = NULL;	/// TEMPORARY DO NOT FORGET LKDFJS:LDSKFJ:
 	
-	node->id = (gui_node_id){0, gui_string("head", 4), NULL, initialize_vec(sizeof(gui_node_id)) };
+	node->id = (gui_node_id){0, initialize_str("head", 4), NULL, initialize_vec(sizeof(gui_node_id)) };
 	
 	if(core->flags & GUI_HEAD_IS_RENDERED) node->flags |= GUI_NODE_IS_RENDERED;
 	
 	return node;
 }
 
-gui_node* guic_add_node(gui_core* core, gui_node* node, gui_str name)
+gui_node* guic_add_node(gui_core* core, gui_node* node, string name)
 {
+	assert( (name.type != STRT_WCHAR_NOALLOC) || (name.type != STRT_CHAR_NOALLOC) && "ERROR, TYPE MUST BE A NO ALLOC");
+	
 	vector_push_back(&core->gui_node_array, node);
-	node->id = (gui_node_id){0, name, NULL, initialize_vec(sizeof(gui_node_id))};
+	node->id.id = core->gui_node_array.size;
+	string_cpy(name, &node->id.str);
 	return node;
 }
 
@@ -71,7 +75,7 @@ gui_node* guin_create_node(gui_node* parent, gui_parent_layout* layout, gui_chil
 	node->parent = parent;	// cannot parent a head obviously
 	node->nodes = initialize_vec(sizeof(gui_node));
 
-	node->id = (gui_node_id){0, gui_string("temp", 4), NULL, initialize_vec(sizeof(gui_node_id))};
+	node->id = (gui_node_id){0, initialize_str(NULL, 8), NULL, initialize_vec(sizeof(gui_node_id))};
 
 	vector_push_back(&parent->nodes, node); 
 
@@ -98,6 +102,13 @@ void gui_dest_core(gui_core* core)
 
 	for(int i = 0; i < (int)core->gui_node_array.size; i++) 
 	{
+		//gui_node* a = VEC_GET(core->gui_node_array, gui_node *, i);
+		if(VEC_GET(core->gui_node_array, gui_node *, i)->id.children.status != VECTOR_FREED)
+			free_vector(&VEC_GET(core->gui_node_array, gui_node *, i)->id.children);
+		
+		if((VEC_GET(core->gui_node_array, gui_node *, i)->id.str.str.c_string) != NULL)
+			free_string(&VEC_GET(core->gui_node_array, gui_node *, i)->id.str);
+		
 		free( VEC_GET(core->gui_node_array, gui_node *, i) );
 		VEC_GET(core->gui_node_array, gui_node *, i) = NULL;
 	}

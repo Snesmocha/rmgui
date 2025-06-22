@@ -14,6 +14,7 @@ extern "C" {
 #include <stdio.h>
 
 #include "dynarray.h"
+#include "dynstr.h"
 
 /* UNDERSTANDING RMGUI
 
@@ -43,7 +44,6 @@ on_hold;
 // === Forward Declarations ===
 
 
-typedef struct gui_str gui_str;
 typedef struct gui_text gui_text;
 
 // === data related to layouts ===
@@ -186,7 +186,7 @@ struct gui_input
 
 struct gui_text 
 {
-	gui_str* string;
+	string string;
 	gui_color* color;
 	int font_size;
 	int letter_spacing;
@@ -257,7 +257,7 @@ struct gui_ren_cmd
 	union
 	{
 		gui_rect rect_cmd;
-		gui_str text_cmd;
+		gui_text text_cmd;
 		gui_ren_img img_cmd;
 		gui_ren_custom cust_cmd;
 	} cmd;
@@ -308,7 +308,7 @@ struct gui_scroll_data
 struct gui_node_id
 {
 	uint32_t id;
-	gui_str string;
+	string str;
 
 	gui_node_id* parent;
 
@@ -371,19 +371,14 @@ void destruct_gui(void);
 // for example create_head({}, NULL, NULL, NULL, NULL)
 gui_node* guin_create_head( gui_parent_layout* layout, gui_children_layout* child_layout, gui_scroll_data* scroll, gui_action actions[4]);
 gui_node* guin_create_node(gui_node* parent, gui_parent_layout* layout, gui_children_layout* child_layout, gui_scroll_data* scroll, gui_action actions[4]);
-gui_node* guin_create_node_txt(gui_str string, gui_text* layout);
+gui_node* guin_create_node_txt(string str, gui_text* layout);
 
 
 gui_node* guic_init(gui_core* core, gui_node* node, uint32_t flags);
-gui_node* guic_add_node(gui_core* core, gui_node* node, gui_str name);
+gui_node* guic_add_node(gui_core* core, gui_node* node, string name);
 
 void gui_dest_core(gui_core* core);
 
-// handles the null esc char for you
-static inline gui_str gui_string(const char* string, size_t len)
-{
-	return (gui_str){len++, (char*)string};
-}
 
 #ifdef __cplusplus
 }
